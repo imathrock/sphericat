@@ -1,3 +1,6 @@
-#include<conio.h>
+#include<iostream>
 
-// I Don't know where to start yet so... hehe.
+int main(){
+
+    return 0;
+}
