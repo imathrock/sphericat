@@ -1,20 +1,21 @@
-#include "matrix.hpp"
+#include "matrix\matrix.hpp"
 
 // Testing simple matricies
 int main(){
-    matrix m(5,5);
+    matrix a(512,512);
     for(int i = 0;i<5;i++){
         for(int j = 0;j<5;j++){
-            m.at(i,j) = i*j;
+            a.at(i,j) = i*j;
         }
     }
-
+    matrix b(512,512);
     for(int i = 0;i<5;i++){
         for(int j = 0;j<5;j++){
-            std::cout << m.at(i,j) << " ";
+            b.at(i,j) = i+j;
         }
-        std::cout << "\n";
     }
-    
+    // matrix c = subM(a,b);
+    matrix c = mulM(a,b);
+    std::cout << "Done\n";
 }
 
