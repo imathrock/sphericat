@@ -7,10 +7,7 @@ These are my notes on how to make an eigensolver. This is the simplest part of t
 Here I assume that the particle is in an infinite square well. The potential $V$ is $0$ everywhere except at the edges where the potential is infinite, given by the following:
 
 $$
-V(x) = \begin{cases} 
-0 & 0 < x < L \\
-\infty & \text{otherwise}
-\end{cases}
+V(x) = \begin{cases} 0 & 0 < x < L \\ \infty & \text{otherwise} \end{cases}
 $$
 
 This means that there are boundary conditions that force the wavefunction to be $0$ at the edges.
@@ -34,12 +31,12 @@ Making stuff cleaner, we take $\hbar = 1$, because $\hbar = 1.0545\times 10^{-34
 Now we have a system of equations:
 
 $$
-\begin{align*}
+\begin{aligned}
 E\psi_1 &= -\frac{1}{2m}\frac{\psi_{0}-2\psi_{1}+\psi_{2}}{dx^2} \\
 E\psi_2 &= -\frac{1}{2m}\frac{\psi_{1}-2\psi_{2}+\psi_{3}}{dx^2} \\
 &\vdots \\
 E\psi_N &= -\frac{1}{2m}\frac{\psi_{N-1}-2\psi_{N}+\psi_{N+1}}{dx^2}
-\end{align*}
+\end{aligned}
 $$
 
 ## Matrix Formulation
@@ -56,20 +53,12 @@ $$
 0 & 0 & 0 & \cdots & -2
 \end{bmatrix}
 \begin{bmatrix}
-\psi_1 \\
-\psi_2 \\
-\psi_3 \\
-\vdots \\
-\psi_N
+\psi_1 \\ \psi_2 \\ \psi_3 \\ \vdots \\ \psi_N
 \end{bmatrix}
 =
 E
 \begin{bmatrix}
-\psi_1 \\
-\psi_2 \\
-\psi_3 \\
-\vdots \\
-\psi_N
+\psi_1 \\ \psi_2 \\ \psi_3 \\ \vdots \\ \psi_N
 \end{bmatrix}
 $$
 
@@ -101,20 +90,12 @@ V_1 & 0 & 0 & \cdots & 0 \\
 \end{bmatrix}
 \right)
 \begin{bmatrix}
-\psi_1 \\
-\psi_2 \\
-\psi_3 \\
-\vdots \\
-\psi_N
+\psi_1 \\ \psi_2 \\ \psi_3 \\ \vdots \\ \psi_N
 \end{bmatrix}
 =
 E
 \begin{bmatrix}
-\psi_1 \\
-\psi_2 \\
-\psi_3 \\
-\vdots \\
-\psi_N
+\psi_1 \\ \psi_2 \\ \psi_3 \\ \vdots \\ \psi_N
 \end{bmatrix}
 $$
 
