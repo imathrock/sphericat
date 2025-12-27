@@ -106,3 +106,6 @@ How would we handle this in 2D and 3D? No idea yet but we will figure it out.
 Now I need to find the eigenvalues of this Hamiltonian matrix. This matrix is a variation of a Toeplitz matrix; the notable characteristic is that it has a diagonal and also has 2 other diagonals filled with the same values. The rest of the values are 0.
 
 To begin with, I would implement these matrices as a flat index and write a macro that can access these using i and j.
+
+## Lanczos algorithm
+Now we have a massive ass matrix and it would have 

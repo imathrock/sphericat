@@ -78,3 +78,18 @@ matrix mulM(matrix a, matrix b){
     }
     return out;
 }
+
+// Creates a hamiltonian matrix
+
+matrixH create_hamiltonian(int N, float L, float offset, float (*potential)(float)){
+    float dx = L/N;
+    matrixH m(N);
+    for(int i = 0; i < N; i++){
+        m.atH(i,i) = -2+potential(dx*i-offset);
+    }
+    for(int i = 0; i < N-1; i++){
+        m.atH(i,i+1) = 1;
+        m.atH(i+1,i) = 1;
+    }
+    return m;
+}
