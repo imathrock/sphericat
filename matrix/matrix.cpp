@@ -85,11 +85,33 @@ matrixH create_hamiltonian(int N, float L, float offset, float (*potential)(floa
     float dx = L/N;
     matrixH m(N);
     for(int i = 0; i < N; i++){
-        m.atH(i,i) = -2+potential(dx*i-offset);
+        m.at(i,i) = -2+potential(dx*i-offset);
     }
     for(int i = 0; i < N-1; i++){
-        m.atH(i,i+1) = 1;
-        m.atH(i+1,i) = 1;
+        m.at(i,i+1) = 1;
+        m.at(i+1,i) = 1;
     }
     return m;
 }
+
+float Normalize(matrix& M){
+    float sqsum = 0.0f;
+    for(int i = 0; i < M.rows; i++){
+        for(int j = 0; j < M.cols; j++){
+            sqsum += M.at(i,j)*M.at(i,j);
+        }
+    }
+    float ret = sqrt(sqsum);
+    sqsum = 1/sqrt(sqsum);
+    for(int i = 0; i < M.rows; i++){
+        for(int j = 0; j < M.cols; j++){
+            M.at(i,j) *= sqsum;
+        }
+    }
+    return ret;
+}
+
+// std::vector<float> find_eigenvalues(matrixH H, matrix M){
+//     if(H && M){std::cout << "Pass only 1 matrix, keep the other NULL."; std::abort();}
+    
+// }

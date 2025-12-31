@@ -1,34 +1,31 @@
 #include "matrix\matrix.hpp"
+#include <cstdlib>
+#include <ctime>
 
 float potential(float x){
-    return x;
+    return x*x;
 }
-
+using namespace std;
 // Testing simple matricies
 int main(){
-    matrix a(512,512);
-    for(int i = 0;i<5;i++){
-        for(int j = 0;j<5;j++){
-            a.at(i,j) = i*j;
-        }
-    }
-    matrix b(512,512);
-    for(int i = 0;i<5;i++){
-        for(int j = 0;j<5;j++){
-            b.at(i,j) = i+j;
-        }
-    }
-    // matrix c = subM(a,b);
-    matrix c = mulM(a,b);
-    int N = 50;
-    matrixH k = create_hamiltonian(N,50,50/2,potential);
-    for(int i = 0; i <N; i++){
+    srand(time(0));
+    int N = 10;
+    matrix m(N,N);
+    matrix v(N,1);
+    for(int i = 0; i < N; i++){
         for(int j = 0; j < N; j++){
-            std::cout << k.atH(i,j) << " ";
+            m.at(i,j) = ((float)rand()/RAND_MAX);
+            // cout << m.at(i,j) << " ";
         }
-        std::cout << "\n";
+        v.at(i,0) = ((float)rand()/RAND_MAX);
+        // cout << "\n";
+    }
+    int k = 10;
+    for(int i = 0; i < k; i++){
+        v = mulM(m,v);
+        cout<< Normalize(v);
+        cout<<"\n";
     }
 
-    std::cout << "Done\n";
+    cout << "Done\n";
 }
-
