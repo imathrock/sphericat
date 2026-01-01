@@ -17,7 +17,7 @@ int main(){
             m.at(i,j) = ((float)rand()/RAND_MAX);
             // cout << m.at(i,j) << " ";
         }
-        v.at(i,0) = ((float)rand()/RAND_MAX);
+        v.at(i,0) = 1.0f;
         // cout << "\n";
     }
     int k = 10;
@@ -26,6 +26,8 @@ int main(){
         cout<< Normalize(v);
         cout<<"\n";
     }
+
+
 
     cout << "Done\n";
 }
