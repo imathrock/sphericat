@@ -1,98 +1,87 @@
-#include"matrix.hpp"
-#include <immintrin.h>
-// a = a+b
-void addM_ip(matrix& a, const matrix& b){ 
-    if(a.rows != b.rows || a.cols != b.cols) {
-        std::cout << "addM_ip : a and b dimension mismatch" << std::endl;
-        return;
-    }
-    for(int r = 0; r < a.rows; ++r){ 
-        for(int c = 0; c < a.cols; ++c){
-            a.at(r,c) += b.at(r,c);
-        }
-    }
-}
-// a = a-b
-void subM_ip(matrix& a, const matrix& b){
-    if(a.rows != b.rows || a.cols != b.cols) {
-        std::cout << "subM_ip : a and b dimension mismatch" << std::endl;
-    }
-    for(int r = 0; r < a.rows; ++r){
-        for(int c = 0; c < a.cols; ++c){
-            a.at(r,c) -= b.at(r,c);
-        }
-    }
-}
+#include "matrix.hpp"
+#include "immintrin.h"
 
-// res = a+b
-matrix addM(const matrix& a, const matrix& b){
-    if(a.rows != b.rows || a.cols != b.cols) {
-        std::cout << "addM : a and b dimension mismatch" << std::endl;  
+  //------------//
+ // A = A op B //
+//------------//
+void add_ip(matrix& A,matrix& B){
+    if(A.cols != B.cols || A.rows != B.rows){
+        std::cout << "Matrices dimensions do not match, Function: add_ip\n\n";
         std::abort();
     }
-    matrix res(a.rows, a.cols); 
-    for(int r = 0; r < a.rows; ++r){
-        for(int c = 0; c < a.cols; ++c){
-            res.at(r,c) = a.at(r,c) + b.at(r,c);
+    for(int i = 0; i < A.rows; i++){
+        for(int j = 0; j < A.cols; j++){
+            A.at(i,j) += B.at(i,j);
         }
     }
-    return res; 
 }
 
-// res = a-b
-matrix subM(const matrix& a, const matrix& b){
-    if(a.rows != b.rows || a.cols != b.cols) {
-        std::cout << "subM : a and b dimension mismatch" << std::endl;
+void sub_ip(matrix& A,matrix& B){
+    if(A.cols != B.cols || A.rows != B.rows){
+        std::cout << "Matrices dimensions do not match, Function: sub_ip\n\n";
         std::abort();
     }
-    matrix res(a.rows, a.cols);
-    for(int r = 0; r < a.rows; ++r){
-        for(int c = 0; c < a.cols; ++c){
-            res.at(r,c) = a.at(r,c) - b.at(r,c);
+    for(int i = 0; i < A.rows; i++){
+        for(int j = 0; j < A.cols; j++){
+            A.at(i,j) -= B.at(i,j);
         }
     }
-    return res; 
 }
 
-
-// I will write some conditions so that this is 
-// offloaded to GPU using openCL, till then I will keep it naive and on CPU
-/*
-Rules of matrix multiplication
-mxn X nxp = mxp
-*/
-matrix mulM(matrix a, matrix b){
-    if(a.cols != b.rows){
-        std::cout << "mulM: sizes of matiricies do not match" << "\n";
+  //------------//
+ // C = A op B //
+//------------//
+matrix add(matrix& A,matrix& B){
+    if(A.cols != B.cols || A.rows != B.rows){
+        std::cout << "Matrices dimensions do not match, Function: add\n\n";
         std::abort();
     }
-    matrix out(a.rows,b.cols);
+    matrix C(A.cols,A.rows);
+    for(int i = 0; i < A.rows; i++){
+        for(int j = 0; j < A.cols; j++){
+            C.at(i,j) = A.at(i,j)+B.at(i,j);
+        }
+    }
+    return C;
+}
 
-    for(int i = 0; i < out.rows;++i){
-        for(int k = 0; k < a.cols; ++k){
-            for(int j = 0; j < out.cols; ++j){
-                out.at(i,j) += a.at(i,k)*b.at(k,j);
+matrix sub(matrix& A,matrix& B){
+    if(A.cols != B.cols || A.rows != B.rows){
+        std::cout << "Matrices dimensions do not match, Function: sub\n\n";
+        std::abort();
+    }
+    matrix C(A.cols,A.rows);
+    for(int i = 0; i < A.rows; i++){
+        for(int j = 0; j < A.cols; j++){
+            C.at(i,j) = A.at(i,j)+B.at(i,j);
+        }
+    }
+    return C;
+}
+
+  //------------//
+ // C = A x B  //
+//------------//
+// Rules of matrix multiplication
+// mxn x nxp = mxp
+matrix mul(matrix& A,matrix& B){
+    if(A.cols != B.rows){
+        std::cout << "A.cols != B.rows, Function: mul(A,B)\n\n";
+        std::abort();
+    }
+    matrix res(A.rows, B.cols);
+    for(int i = 0; i < res.cols; i++){
+        for(int k = 0; k < B.rows;k++){
+            for(int j = 0; j < res.rows; j++){
+                res.at(i,j) += A.at(i,k)*B.at(k,j);
             }
         }
     }
-    return out;
+    return res;
 }
 
-// Creates a hamiltonian matrix
-matrixH create_hamiltonian(int N, float L, float offset, float (*potential)(float)){
-    float dx = L/N;
-    matrixH m(N);
-    for(int i = 0; i < N; i++){
-        m.at(i,i) = -2+potential(dx*i-offset);
-    }
-    for(int i = 0; i < N-1; i++){
-        m.at(i,i+1) = 1;
-        m.at(i+1,i) = 1;
-    }
-    return m;
-}
-
-float Normalize(matrix& M){
+// Vectorized Normalization function 
+float norm(matrix& M){
     __m256 sqsum = _mm256_setzero_ps();
     __m256 sumvec = _mm256_setzero_ps();
     int i = 0;
@@ -109,7 +98,7 @@ float Normalize(matrix& M){
     for(;i<M.size; i++){
         squsum += M.data[i]*M.data[i];
     }
-    if(sqsum < 1e-15){
+    if(squsum < 1e-15){
         std::cout<< "Matrix norm is zero, Division by zero error\n";
         std::abort();
     }
@@ -127,31 +116,3 @@ float Normalize(matrix& M){
     }
     return ret;
 }
-
-matrix Transpose(matrix& M){
-    matrix MT(M.cols, M.rows);
-    for(int i = 0; i<M.rows; i++){
-        for(int j = 0; j<M.cols; j++){
-            MT.at(j,i) = M.at(i,j);
-        }
-    }
-    MT.transpose ^= 1;
-    return MT;
-}
-
-std::vector<float> column_vector(matrix& M,int i){
-    std::vector<float> vec = std::vector<float>;
-    if(M.transpose){
-        std::memcpy(&vec,&M.at(i,0),M.rows*sizeof(float));
-        return vec;
-    }else{
-        
-        return ;
-    }
-}
-
-// // QR decomposition
-// QR_t QR_GS(matrix& M){
-//     QR_t QR;
-    
-// }

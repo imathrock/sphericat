@@ -1,67 +1,44 @@
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
+#ifndef MATRIX_H
+#define MATRIX_H
 
+#include<cmath>
 #include<iostream>
 #include<vector>
 #include<cstdlib>
-#include<cmath>
 
-// Row major default format
+// Column major format
 struct matrix{
-    int rows, cols, size;
+    int cols, rows, size;
     std::vector<float> data;
-    int transpose = 0;
 
-    matrix(int r, int c) : rows(r), cols(c), size(r*c), data(r*c,0.0f) {}
+    matrix(int c, int r) : cols(c), rows(r), size(r*c), data(c*r,0.0f){}
 
-    float& at(int r,int c){ return data[r*cols+c]; }    
-
-    const float& at(int r,int c) const{ return data[r*cols+c]; }
-
-};
-
-struct matrixH{
-    int rows, cols, size;
-    std::vector<float> data;
-    float zero_ret = 0.0f;// To ensure I return a float's address instead of 0 value.
-    matrixH(int N) : rows(N), cols(N), size((3*N)-2), data((3*N)-2) {}
-    
-    float& at(int r,int c){
-        if(std::abs(r-c) >= 2) { 
-            zero_ret = 0.0f;
-            return zero_ret; 
-        }
-        return data[2*r+c];
+    inline float& at(int c, int r){
+        return data[c*rows+r];
     }
-    
-    const float& at(int r,int c) const{
-        if(std::abs(r-c) >= 2) { return zero_ret; }
-        return data[2*r+c];
+    inline const float& at(int c, int r) const{
+        return data[c*rows+r];
     }
-
 };
 
-struct QR_t{
-    matrix Q;
-    matrix R;
-};
+  //------------//
+ // A = A op B //
+//------------//
+void add_ip(matrix& A,matrix& B);
+void sub_ip(matrix& A,matrix& B);
 
-std::vector<float> column_vector(matrix& M);
+  //------------//
+ // C = A op B //
+//------------//
+matrix add(matrix& A,matrix& B);
+matrix sub(matrix& A,matrix& B);
 
-matrix Transpose(matrix& M);
+  //------------//
+ // C = A x B  //
+//------------//
+matrix mul(matrix& A,matrix& B);
 
-float Normalize(matrix& M);
-
-void addM_ip(matrix& a, const matrix& b);
-void subM_ip(matrix& a, const matrix& b);
-
-matrix addM(const matrix& a, const matrix& b);
-matrix subM(const matrix& a, const matrix& b);
-
-matrix mulM(matrix a, matrix b);
-
-matrixH create_hamiltonian(int N, float L, float offset, float (*potential)(float));
-
-std::vector<float> find_eigenvalues(matrixH H, matrix M);
+// Normalization function, returns norm of the whole matrix, Vectorized for performance
+float norm(matrix& M);
 
 #endif
