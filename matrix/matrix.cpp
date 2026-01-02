@@ -116,3 +116,4 @@ float norm(matrix& M){
     }
     return ret;
 }
+
