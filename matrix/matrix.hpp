@@ -5,6 +5,8 @@
 #include<iostream>
 #include<vector>
 #include<cstdlib>
+#include <iomanip>
+
 
 // Column major format
 struct matrix{
@@ -19,6 +21,10 @@ struct matrix{
     inline const float& at(int c, int r) const{
         return data[c*rows+r];
     }
+
+    /*
+        Probably can write a at_transpose function that returns value at transposed index to prevent memory allocation. 
+    */
 };
 
   //------------//
@@ -41,6 +47,9 @@ matrix mul(matrix& A,matrix& B);
 // Normalization function, returns norm of the whole matrix, Vectorized for performance
 float norm(matrix& M);
 
+//-----------------------//
+//   QR decomposition    //
+//-----------------------//
 inline float dotprod(matrix&a, matrix&b, int i, int j){
     float res = 0; 
     for(int k = 0; k < b.rows; k++){ res += a.at(i,k)*b.at(j,k); }
@@ -65,18 +74,25 @@ struct QR_thin {
     QR_thin(matrix& A) : Q(A.cols, A.rows) , R(A.cols, A.cols) {
         for(int i = 0; i < A.cols; i++){
 
-            for(int k = 0; k < A.cols; k++) { Q.at(i,k) = A.at(i,k);}
+            for(int k = 0; k < A.rows; k++) { Q.at(i,k) = A.at(i,k);}
 
             for(int j = 0; j < i; j++){
-                float dot = dotprod(Q, A, j, i);
+                float dot = dotprod(Q, Q, j, i);
                 R.at(j,i) = dot;
                 subvecs(Q,i,j,dot);
             }
-            float norm = vecnorm(Q, i);
-            R.at(i,i) = norm;
+            R.at(i,i) = vecnorm(Q, i);
         }
     }
 };
+
+bool allclose(matrix&A, matrix& B);
+
+void QR_decompose(QR_thin& QR, matrix& A);
+
+QR_thin QR_algorithm(matrix&A);
+
+matrix Transpose(matrix& A);
 
 
 #endif

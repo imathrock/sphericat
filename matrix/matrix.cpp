@@ -117,3 +117,61 @@ float norm(matrix& M){
     return ret;
 }
 
+// A function to QR decompose again
+void QR_decompose(QR_thin& QR, matrix& A){
+    for(int i = 0; i < A.cols; i++){
+
+        for(int k = 0; k < A.rows; k++) { QR.Q.at(i,k) = A.at(i,k);}
+
+        for(int j = 0; j < i; j++){
+            float dot = dotprod(QR.Q, QR.Q, j, i);
+            QR.R.at(j,i) = dot;
+            subvecs(QR.Q,i,j,dot);
+        }
+        float norm = vecnorm(QR.Q, i);
+        QR.R.at(i,i) = norm;
+    }
+}
+
+matrix Transpose(matrix& A){
+    matrix AT(A.rows, A.cols);
+    for(int i = 0; i < A.cols; i++){        
+        for(int j = 0; j < A.rows; j++){
+            AT.at(j,i) = A.at(i,j);
+        }
+    }
+    return AT;
+}
+
+// Column vector wise comparision to check if dot products are converging
+bool allclose(matrix&A, matrix& B){ 
+    for(int i = 0; i < A.cols; i++){
+        float dot = dotprod(A, B, i,i);
+        if(std::abs(std::abs(dot) - 1.0f) > 1e-6){ return false; }
+    }
+    return true;
+}
+
+// The end result needs to be eigenvectors and eigenvalues. 
+// Check how np.allclose is implemented. 
+// Q will contain eigenvectors, 
+// Q.T @ A @ Q = E, where E is a diagonal matrix containing eigenvalues of all eigenvectors in Q. 
+
+QR_thin QR_algorithm(matrix&A){
+    QR_thin qr(A);
+
+    matrix Q_prev(qr.Q.cols, qr.Q.rows);
+    matrix B(A.cols,A.rows);
+
+    int iter = 2000;
+    while(iter--){
+        Q_prev = qr.Q;
+        B = mul(qr.Q,A);
+        QR_decompose(qr, B);
+        std::cout<<iter<<"\n";
+        if(allclose(Q_prev, qr.Q)){ break; }
+    }
+    // print_matrix(Q_prev);
+    // print_matrix(qr.Q);
+    return qr;
+}
