@@ -152,11 +152,6 @@ bool allclose(matrix&A, matrix& B){
     return true;
 }
 
-// The end result needs to be eigenvectors and eigenvalues. 
-// Check how np.allclose is implemented. 
-// Q will contain eigenvectors, 
-// Q.T @ A @ Q = E, where E is a diagonal matrix containing eigenvalues of all eigenvectors in Q. 
-
 QR_thin QR_algorithm(matrix&A){
     QR_thin qr(A);
 
@@ -175,3 +170,5 @@ QR_thin QR_algorithm(matrix&A){
     // print_matrix(qr.Q);
     return qr;
 }
+
+// Now I need somethign that will return me the eigenvalues. 

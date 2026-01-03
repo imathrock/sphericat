@@ -1,3 +1,5 @@
+#ifndef CLANKER_H
+#define CLANKER_H
 #include<cmath>
 #include<iostream>
 #include<vector>
@@ -16,3 +18,18 @@ void print_matrix(const matrix& A) {
     }
     std::cout << "\n";
 }
+
+void print_eigen(const eigen& e) {
+    std::cout << "\n=== EIGEN DECOMPOSITION RESULTS ===\n";
+    for (size_t i = 0; i < e.eigenvalues.size(); i++) {
+        std::cout << "Mode " << i << ":\n";
+        std::cout << "  Eigenvalue: " << e.eigenvalues[i] << "\n";
+        std::cout << "  Eigenvector: [ ";
+        for (float val : e.eigenvectors[i]) {
+            std::cout << val << " ";
+        }
+        std::cout << "]\n\n";
+    }
+}
+
+#endif

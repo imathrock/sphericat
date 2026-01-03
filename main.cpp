@@ -6,7 +6,7 @@
 using namespace std;
 // Testing simple matricies
 int main(){
-    int N = 50;
+    int N = 5;
     matrix A(N,N);
     matrix B(N,N);
     for(int i = 0; i< N; i++){        
@@ -17,11 +17,13 @@ int main(){
     }
     matrix c = mul(A,A);
     cout << norm(c) << "\n";
-    QR_thin qr = QR_algorithm(c);
+    // QR_thin qr = QR_algorithm(c);
     // print_matrix(qr.Q);
-    matrix QT = Transpose(qr.Q);
-    B = mul(c,QT);
-    B = mul(qr.Q,B);
-    print_matrix(B); 
+    // matrix QT = Transpose(qr.Q);
+    // B = mul(c,QT);
+    // B = mul(qr.Q,B);
+    // print_matrix(B); 
+    eigen eigen(c);
+    print_eigen(eigen);
     cout << "done\n";
 }

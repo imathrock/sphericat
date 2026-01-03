@@ -5,7 +5,6 @@
 #include<iostream>
 #include<vector>
 #include<cstdlib>
-#include <iomanip>
 
 
 // Column major format
@@ -94,5 +93,23 @@ QR_thin QR_algorithm(matrix&A);
 
 matrix Transpose(matrix& A);
 
+struct eigen{
+    std::vector<float> eigenvalues;
+    std::vector<std::vector<float>> eigenvectors;
+    eigen(matrix& A) {
+        QR_thin qr = QR_algorithm(A);
+        matrix QT = Transpose(qr.Q);
+        eigenvalues.resize(A.cols);
+        eigenvectors.resize(A.cols, std::vector<float>(A.cols));
+        matrix B = mul(A,QT);
+        B = mul(qr.Q,B);
+        for(int i = 0; i < B.cols; i++){ eigenvalues[i] = B.at(i,i); }
+        for(int i = 0; i < qr.Q.cols; i++){
+            for(int j = 0; j < qr.Q.rows; j++){
+                eigenvectors[i][j] = qr.Q.at(i,j);
+            }
+        }
+    }
+};
 
 #endif
