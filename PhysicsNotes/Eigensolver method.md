@@ -108,4 +108,18 @@ Now I need to find the eigenvalues of this Hamiltonian matrix. This matrix is a 
 To begin with, I would implement these matrices as a flat index and write a macro that can access these using i and j.
 
 ## Lanczos algorithm
-Now we have a massive ass matrix and it would have 
+Now we have a massive ass matrix and our task is to find the eigenvalues and eigenvectors of the matrix. Since this is a large matrix, it would be infeasible to find all the eigenvalues, because for symmetric hermitian matricies like the hamiltonian matrix of size N, there are N distinct unique eigenvalues and equal number of eigenvectors. If we were to simulate a real system the the hamiltonian matrix would be $\lim_{N\to\infty}$ and we would have infinite eigenvalues. This is a different way to see how eigenvalues of this kind of quantum system maps to real numbers. 
+
+Now then how do we solve this large matrix for its eigenvalue?
+We use one of the kyrlov subspace method. A kyrlov subspace is a subspace formed by applying the whole transformation matrix $A$ again and again to a given vector. Now this subspace is finite, so if it is of size m, matrix $A$ is applied to the vector $b$, $m-1$ times. In notation 
+$$
+\mathcal{K}_m(A, b) = \operatorname{span}\{b, Ab, A^2b, \dots, A^{m-1}b\}
+$$ 
+Now this does not mean that all of these kyrlov subspace vectors are linearly independent. The last vector is closest to the eigenvector. The repeated application of the $A$ matrix to vector $v$ reveals the spectral structure of $A$. So what we do is something similar to QR decomposition but instead of R being a upper triangular matrix, so we approximate:
+$$AQ_k = Q_kH_k + \beta_kq_{k+1}e_k^T$$
+
+Where $Q \in \R^{n\times m}$ matrix of orthogonal column vectors (not eigenvectors), $H \in \R^{m\times m}$, a upper hessenberg matrix, (If this were upper triangular then Q's columns would be eigenvectors). The eigenvalues of $H$ are called Ritz values and are an approximate estimation of the eigenvalues of $A$. To then get the eigenvectors we gotta do something weird, we need to find the eigenvectors of $H$ 
+$$H_mv = \lambda v$$
+$v$ is of dimension $m$, Then 
+$$\hat\psi = Q_mv$$
+$\hat\psi$ is an approximate eigenvector of the hamiltonian matrix. 

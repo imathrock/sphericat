@@ -167,8 +167,10 @@ QR_thin QR_algorithm(matrix&A){
         if(allclose(Q_prev, qr.Q)){ break; }
     }
     // print_matrix(Q_prev);
-    // print_matrix(qr.Q);
+    // print_matrix(qr.Q);  
     return qr;
 }
 
-// Now I need somethign that will return me the eigenvalues. 
+// Now time to integrate lanczos. 
+/*
+*/

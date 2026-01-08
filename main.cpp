@@ -6,13 +6,13 @@
 using namespace std;
 // Testing simple matricies
 int main(){
-    int N = 5;
+    int N = 100;
     matrix A(N,N);
     matrix B(N,N);
     for(int i = 0; i< N; i++){        
         for(int j = 0; j< N; j++){
             A.at(i,j) = i+j; 
-            if (i == j) A.at(i,j) += N; // Diagonal Dominance -> Full Rank
+            if (i == j) A.at(i,j) += N; 
         }
     }
     matrix c = mul(A,A);
