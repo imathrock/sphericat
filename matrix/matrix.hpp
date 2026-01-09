@@ -5,6 +5,7 @@
 #include<iostream>
 #include<vector>
 #include<cstdlib>
+#include<algorithm>
 
 
 // Column major format
@@ -21,10 +22,34 @@ struct matrix{
         return data[c*rows+r];
     }
 
-    /*
-        Probably can write a at_transpose function that returns value at transposed index to prevent memory allocation. 
-    */
 };
+
+struct tri_diag_matrix{
+    int size;
+    std::vector<float> diag;
+    std::vector<float> sub_diag;
+    std::vector<float> sup_diag;
+    float zero_ret = 0.0f;
+
+    tri_diag_matrix(int N) : size(N*N), diag(N,0.0f), sub_diag(N-1,0.0f), sup_diag(N-1,0.0f){}
+
+    inline float& at(int c, int r){
+        if(c==r){ return diag[c]; }
+        if(c==r+1){ return sub_diag[c]; }
+        if(c+1==r){ return sup_diag[r]; }
+        return zero_ret;
+    }
+    inline const float at(int c, int r) const{
+        if(c==r){ return diag[c]; }
+        if(c==r+1){ return sub_diag[c]; }
+        if(c+1==r){ return sup_diag[r]; }
+        return 0.0f;
+    }
+
+};
+
+// Generates a hamiltonian matrix given potential function.
+tri_diag_matrix generate_hamiltonian(int size,float L, float offset, float (*potential)(float));
 
   //------------//
  // A = A op B //
@@ -111,5 +136,7 @@ struct eigen{
         }
     }
 };
+
+
 
 #endif

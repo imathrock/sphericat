@@ -31,5 +31,34 @@ void print_eigen(const eigen& e) {
         std::cout << "]\n\n";
     }
 }
+void print_T_matrix(const tri_diag_matrix& m) {
+    // Rely on diag size for the dimension N
+    int N = m.diag.size(); 
+
+    std::cout << std::fixed << std::setprecision(1); // formatting
+
+    for (int r = 0; r < N; ++r) {
+        std::cout << "[";
+        for (int c = 0; c < N; ++c) {
+            float val = 0.0f;
+
+            if (r == c) {
+                // Main Diagonal
+                val = m.diag[r];
+            } 
+            else if (r == c + 1) {
+                // Sub-diagonal (Lower) -> usually mapped to index c
+                val = m.sub_diag[c]; 
+            } 
+            else if (c == r + 1) {
+                // Super-diagonal (Upper) -> usually mapped to index r
+                val = m.sup_diag[r]; 
+            }
+
+            std::cout << std::setw(2) << val << ",";
+        }
+        std::cout << "]\n";
+    }
+}
 
 #endif

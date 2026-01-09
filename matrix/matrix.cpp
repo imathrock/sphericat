@@ -171,6 +171,12 @@ QR_thin QR_algorithm(matrix&A){
     return qr;
 }
 
-// Now time to integrate lanczos. 
-/*
-*/
+// Now I need to create a function that generates a tri diagonal hamiltonian matrix for me. 
+tri_diag_matrix generate_hamiltonian(int size,float L, float offset, float (*potential)(float)){
+    tri_diag_matrix hamiltonian(size); 
+    float dx = L/size;
+    std::fill(std::begin(hamiltonian.sub_diag),std::end(hamiltonian.sub_diag), 1.0f);
+    std::fill(std::begin(hamiltonian.sup_diag),std::end(hamiltonian.sup_diag), 1.0f);
+    for(int i = 0; i < size; i++){ hamiltonian.diag[i] = -2+potential(dx*i-offset); }
+    return hamiltonian;
+}
