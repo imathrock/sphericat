@@ -6,7 +6,7 @@
 #include<vector>
 #include<cstdlib>
 #include<algorithm>
-
+#include<random>
 
 // Column major format
 struct matrix{
@@ -68,8 +68,10 @@ matrix sub(matrix& A,matrix& B);
 //------------//
 matrix mul(matrix& A,matrix& B);
 
-// Normalization function, returns norm of the whole matrix, Vectorized for performance
+// Normalization function, returns frobenius norm of the whole matrix, Vectorized for performance
 float norm(matrix& M);
+// vector normalization
+float normvec(std::vector<float>& v);
 
 //-----------------------//
 //   QR decomposition    //
@@ -93,6 +95,8 @@ inline void subvecs(matrix&a, int i, int j, float scale){
     for(int k = 0; k < a.rows; k++){ a.at(i,k) -= a.at(j,k)*scale; }
 }
 
+
+// To do FULL QR decompositon check the dimensions of matrix Q, If it is tall, dimensions of R is the same as A and Q is a square matrix.
 struct QR_thin {
     matrix Q, R;
     QR_thin(matrix& A) : Q(A.cols, A.rows) , R(A.cols, A.cols) {
@@ -137,6 +141,17 @@ struct eigen{
     }
 };
 
+// Okay so for a lanczos eigenvalue problem I need a randomized normalized eigenvector. 
+// I need a randomized vector generator
+std::vector<float> randvector(int N);
 
+struct Arnoldi_matrices{
+    matrix Q, H;
+    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
+        int N = sqrt(A.size);
+        std::vector<float> q = randvector(N);
+        
+    }
+};
 
 #endif

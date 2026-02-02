@@ -166,12 +166,10 @@ QR_thin QR_algorithm(matrix&A){
         std::cout<<iter<<"\n";
         if(allclose(Q_prev, qr.Q)){ break; }
     }
-    // print_matrix(Q_prev);
-    // print_matrix(qr.Q);  
     return qr;
 }
 
-// Now I need to create a function that generates a tri diagonal hamiltonian matrix for me. 
+// Hamiltonian matrix generator
 tri_diag_matrix generate_hamiltonian(int size,float L, float offset, float (*potential)(float)){
     tri_diag_matrix hamiltonian(size); 
     float dx = L/size;
@@ -180,3 +178,34 @@ tri_diag_matrix generate_hamiltonian(int size,float L, float offset, float (*pot
     for(int i = 0; i < size; i++){ hamiltonian.diag[i] = -2+potential(dx*i-offset); }
     return hamiltonian;
 }
+
+float normvec(std::vector<float>& v){
+    float sqsum = 0;
+    for(int i = 0; i < (int)v.size(); i++){
+        sqsum+=v[i]*v[i];
+    }
+    sqsum = sqrt(sqsum);
+    float invsqsum = 1/sqsum;
+    for(int i = 0; i < (int)v.size(); i++){
+        v[i] *= invsqsum;
+    }
+    return sqsum;
+}
+
+std::vector<float> randvector(int N){
+    std::vector<float> v(N);
+    std::mt19937 gen(42);
+    std::normal_distribution<float> dist(0.0, 1.0);
+    for(int i = 0; i < N; i++){
+        v[i] = dist(gen);
+    }
+    float norm = normvec(v);
+    for(int i = 0; i < N; i++){
+        std::cout << v[i] << "\n";
+    }
+    return v;
+}
+// Lanczos algorithm
+// Since the lanczos algorithm is a function it must return some stuff, So I would like 
+// it to return the first N eigenvalues and first N eigenvectors. 
+// So I would need to create a struct to handle that. 

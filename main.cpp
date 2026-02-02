@@ -10,26 +10,23 @@ float potential(float x){
 using namespace std;
 // Testing simple matricies
 int main(){
-    int N = 25;
-    // matrix A(N,N);
-    // matrix B(N,N);
-    // for(int i = 0; i< N; i++){        
-    //     for(int j = 0; j< N; j++){
-    //         A.at(i,j) = i+j; 
-    //         if (i == j) A.at(i,j) += N; 
-    //     }
-    // }
-    // matrix c = mul(A,A);
-    // cout << norm(c) << "\n";
-    // // QR_thin qr = QR_algorithm(c);
-    // // print_matrix(qr.Q);
-    // // matrix QT = Transpose(qr.Q);
-    // // B = mul(c,QT);
-    // // B = mul(qr.Q,B);
-    // // print_matrix(B); 
-    // eigen eigen(c);
-    // print_eigen(eigen);
-    tri_diag_matrix m = generate_hamiltonian(N,5,5/2,potential);
-    print_T_matrix(m);
+    int N = 8;
+    int M = 5;
+    
+    tri_diag_matrix A = generate_hamiltonian(N, 5.0f, 2.5f, potential);
+    
+    cout << "=== Original Tridiagonal Matrix A ===\n";
+    print_T_matrix(A);
+    cout << "\n";
+    
+    cout << "=== Running Arnoldi Iteration (M=" << M << ") ===\n";
+    Arnoldi_matrices arnoldi(M, A);
+    
+    cout << "\n=== Arnoldi Q Matrix (Orthonormal basis) ===\n";
+    print_matrix(arnoldi.Q);
+    
+    cout << "\n=== Arnoldi H Matrix (Upper Hessenberg) ===\n";
+    print_matrix(arnoldi.H);
+    
     cout << "done\n";
 }
