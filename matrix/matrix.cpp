@@ -179,7 +179,7 @@ tri_diag_matrix generate_hamiltonian(int size,float L, float offset, float (*pot
     return hamiltonian;
 }
 
-float normvec(std::vector<float>& v){
+float normvec(fvec& v){
     float sqsum = 0;
     for(int i = 0; i < (int)v.size(); i++){
         sqsum+=v[i]*v[i];
@@ -192,20 +192,35 @@ float normvec(std::vector<float>& v){
     return sqsum;
 }
 
-std::vector<float> randvector(int N){
-    std::vector<float> v(N);
+fvec randvector(int N){
+    fvec v(N);
     std::mt19937 gen(42);
     std::normal_distribution<float> dist(0.0, 1.0);
     for(int i = 0; i < N; i++){
         v[i] = dist(gen);
     }
-    float norm = normvec(v);
-    for(int i = 0; i < N; i++){
-        std::cout << v[i] << "\n";
-    }
+    normvec(v);
     return v;
 }
-// Lanczos algorithm
-// Since the lanczos algorithm is a function it must return some stuff, So I would like 
-// it to return the first N eigenvalues and first N eigenvectors. 
-// So I would need to create a struct to handle that. 
+
+// Applying a transformation matrix to a vector. 
+
+fvec TDmat_vec_mul(tri_diag_matrix& A, fvec q){
+    if(sqrt(A.size) != q.size()){
+        std::cout << "Matrix and vector dimensions do not match \n";
+        std::abort();
+    }
+    fvec w(q.size());
+    for(int i = 0; i < q.size(); i++){
+        if(i == 0){
+            w[i] = A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
+        }
+        else if(i == q.size()-1){
+            w[i] = A.at(i,i)*q[i] + A.at(i-1,i)*q[i-1];
+        }
+        else{
+            w[i] = A.at(i-1,i)*q[i-1] + A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
+        }
+    }
+    return w;
+}

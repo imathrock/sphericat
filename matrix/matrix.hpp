@@ -8,10 +8,12 @@
 #include<algorithm>
 #include<random>
 
+typedef std::vector<float> fvec;
+
 // Column major format
 struct matrix{
     int cols, rows, size;
-    std::vector<float> data;
+    fvec data;
 
     matrix(int c, int r) : cols(c), rows(r), size(r*c), data(c*r,0.0f){}
 
@@ -26,9 +28,9 @@ struct matrix{
 
 struct tri_diag_matrix{
     int size;
-    std::vector<float> diag;
-    std::vector<float> sub_diag;
-    std::vector<float> sup_diag;
+    fvec diag;
+    fvec sub_diag;
+    fvec sup_diag;
     float zero_ret = 0.0f;
 
     tri_diag_matrix(int N) : size(N*N), diag(N,0.0f), sub_diag(N-1,0.0f), sup_diag(N-1,0.0f){}
@@ -68,10 +70,10 @@ matrix sub(matrix& A,matrix& B);
 //------------//
 matrix mul(matrix& A,matrix& B);
 
-// Normalization function, returns frobenius norm of the whole matrix, Vectorized for performance
+// Normalization function, returns frobenius norm of the whole matrix, vecized for performance
 float norm(matrix& M);
-// vector normalization
-float normvec(std::vector<float>& v);
+// fvec normalization
+float normvec(fvec& v);
 
 //-----------------------//
 //   QR decomposition    //
@@ -123,13 +125,13 @@ QR_thin QR_algorithm(matrix&A);
 matrix Transpose(matrix& A);
 
 struct eigen{
-    std::vector<float> eigenvalues;
-    std::vector<std::vector<float>> eigenvectors;
+    fvec eigenvalues;
+    std::vector<fvec> eigenvectors;
     eigen(matrix& A) {
         QR_thin qr = QR_algorithm(A);
         matrix QT = Transpose(qr.Q);
         eigenvalues.resize(A.cols);
-        eigenvectors.resize(A.cols, std::vector<float>(A.cols));
+        eigenvectors.resize(A.cols, fvec(A.cols));
         matrix B = mul(A,QT);
         B = mul(qr.Q,B);
         for(int i = 0; i < B.cols; i++){ eigenvalues[i] = B.at(i,i); }
@@ -143,15 +145,19 @@ struct eigen{
 
 // Okay so for a lanczos eigenvalue problem I need a randomized normalized eigenvector. 
 // I need a randomized vector generator
-std::vector<float> randvector(int N);
+fvec randvector(int N);
 
-struct Arnoldi_matrices{
-    matrix Q, H;
-    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
-        int N = sqrt(A.size);
-        std::vector<float> q = randvector(N);
-        
-    }
-};
+fvec TDmat_vec_mul(tri_diag_matrix& A, fvec q);
+
+// struct Arnoldi_matrices{
+//     matrix Q, H;
+//     Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
+//         int N = sqrt(A.size);
+//         vector q = randvector(N);
+//         for(int j = 0; j < M; j++){
+//             w = TDmat_vec_mul(A,q);
+//         }
+//     }
+// };
 
 #endif
