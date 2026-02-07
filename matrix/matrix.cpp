@@ -80,6 +80,18 @@ matrix mul(matrix& A,matrix& B){
     return res;
 }
 
+float dot(fvec& A, fvec& B){
+    if(A.size() != B.size()){
+        std::cout << "vector dot product arguments of incorrect size\n"
+        std::abort();
+    }
+    float res = 0;
+    for(int i = 0; i<A.size(); i++){
+        res += A[i]*B[i]
+    }
+    return res;
+}
+
 // Vectorized Normalization function 
 float norm(matrix& M){
     __m256 sqsum = _mm256_setzero_ps();
@@ -210,17 +222,14 @@ fvec TDmat_vec_mul(tri_diag_matrix& A, fvec q){
         std::cout << "Matrix and vector dimensions do not match \n";
         std::abort();
     }
-    fvec w(q.size());
-    for(int i = 0; i < q.size(); i++){
-        if(i == 0){
-            w[i] = A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
-        }
-        else if(i == q.size()-1){
-            w[i] = A.at(i,i)*q[i] + A.at(i-1,i)*q[i-1];
-        }
-        else{
-            w[i] = A.at(i-1,i)*q[i-1] + A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
-        }
+    int N = q.size();
+    fvec w(N);
+    // Handling the first and last rows of matrix
+    w[0] = A.at(0,0)*q[0] + A.at(1,0)*q[1];
+    w[N] = A.at(N,N)*q[N] + A.at(N-1,N)*q[N-1];
+    // The rest of the rows.
+    for(int i = 1; i < N-1; i++){
+        w[i] = A.at(i-1,i)*q[i-1] + A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
     }
     return w;
 }

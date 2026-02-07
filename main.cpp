@@ -9,13 +9,13 @@ float potential(float x){
 using namespace std;
 // Testing simple matricies
 int main(){
-    int N = 10;
+    int N = 100;
     // int M = 5;
     
     tri_diag_matrix A = generate_hamiltonian(N, 5.0f, 2.5f, potential);
     
     cout << "=== Original Tridiagonal Matrix A ===\n";
-    print_T_matrix(A);
+    // print_T_matrix(A);
     cout << "\n";
     
     cout << "=== random vector ===\n";

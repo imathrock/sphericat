@@ -70,6 +70,8 @@ matrix sub(matrix& A,matrix& B);
 //------------//
 matrix mul(matrix& A,matrix& B);
 
+float dot(fvec& A, fvec& B);
+
 // Normalization function, returns frobenius norm of the whole matrix, vecized for performance
 float norm(matrix& M);
 // fvec normalization
@@ -149,15 +151,26 @@ fvec randvector(int N);
 
 fvec TDmat_vec_mul(tri_diag_matrix& A, fvec q);
 
-// struct Arnoldi_matrices{
-//     matrix Q, H;
-//     Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
-//         int N = sqrt(A.size);
-//         vector q = randvector(N);
-//         for(int j = 0; j < M; j++){
-//             w = TDmat_vec_mul(A,q);
-//         }
-//     }
-// };
+inline void scale_fvec(float f, fvec& v){
+    for(int i = 0; i< v.size(); i++){ v[i]*=f;}
+}
+
+struct Arnoldi_matrices{
+    matrix Q, H;
+    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
+        int N = sqrt(A.size);
+        fvec q = randvector(N);
+        fvec v;
+        for(int j = 0; j < M; j++){
+            v = TDmat_vec_mul(A,q);
+            for(int i = 0; i < j; i++){
+                H.at(j,i) = dot(q,v);
+                scale_fvec(H.at(j,i),q);
+                v = v - H.at(j,i)
+            }
+
+        }
+    }
+};
 
 #endif
