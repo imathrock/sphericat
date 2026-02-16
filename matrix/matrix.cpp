@@ -69,7 +69,7 @@ matrix mul(matrix& A,matrix& B){
         std::cout << "A.cols != B.rows, Function: mul(A,B)\n\n";
         std::abort();
     }
-    matrix res(A.rows, B.cols);
+    matrix res(B.rows, A.cols);
     for(int i = 0; i < res.cols; i++){
         for(int k = 0; k < B.rows;k++){
             for(int j = 0; j < res.rows; j++){
@@ -77,17 +77,18 @@ matrix mul(matrix& A,matrix& B){
             }
         }
     }
+    std::cout<<"Done\n";
     return res;
 }
 
 float dot(fvec& A, fvec& B){
     if(A.size() != B.size()){
-        std::cout << "vector dot product arguments of incorrect size\n"
+        std::cout << "vector dot product arguments of incorrect size\n";
         std::abort();
     }
     float res = 0;
-    for(int i = 0; i<A.size(); i++){
-        res += A[i]*B[i]
+    for(size_t i = 0; i < A.size(); i++){
+        res += A[i]*B[i];
     }
     return res;
 }
@@ -222,12 +223,10 @@ fvec TDmat_vec_mul(tri_diag_matrix& A, fvec q){
         std::cout << "Matrix and vector dimensions do not match \n";
         std::abort();
     }
-    int N = q.size();
+    int N = static_cast<int>(q.size());
     fvec w(N);
-    // Handling the first and last rows of matrix
     w[0] = A.at(0,0)*q[0] + A.at(1,0)*q[1];
-    w[N] = A.at(N,N)*q[N] + A.at(N-1,N)*q[N-1];
-    // The rest of the rows.
+    w[N-1] = A.at(N-2, N-1)*q[N-2] + A.at(N-1, N-1)*q[N-1];
     for(int i = 1; i < N-1; i++){
         w[i] = A.at(i-1,i)*q[i-1] + A.at(i,i)*q[i] + A.at(i+1,i)*q[i+1];
     }

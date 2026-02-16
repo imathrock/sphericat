@@ -37,14 +37,14 @@ struct tri_diag_matrix{
 
     inline float& at(int c, int r){
         if(c==r){ return diag[c]; }
-        if(c==r+1){ return sub_diag[c]; }
-        if(c+1==r){ return sup_diag[r]; }
+        if(c==r+1){ return sub_diag[r]; }
+        if(c+1==r){ return sup_diag[c]; }
         return zero_ret;
     }
     inline const float at(int c, int r) const{
         if(c==r){ return diag[c]; }
-        if(c==r+1){ return sub_diag[c]; }
-        if(c+1==r){ return sup_diag[r]; }
+        if(c==r+1){ return sub_diag[r]; }
+        if(c+1==r){ return sup_diag[c]; }
         return 0.0f;
     }
 
@@ -155,20 +155,70 @@ inline void scale_fvec(float f, fvec& v){
     for(int i = 0; i< v.size(); i++){ v[i]*=f;}
 }
 
+static inline void append_mtx(matrix&Q, fvec f, int col){
+    for(int i = 0; i < Q.rows; i++){Q.at(col,i) = f[i];}
+}
+
+static inline fvec getcol(matrix& Q, int col){
+    fvec f(Q.rows);
+    for(int i = 0; i < Q.rows; i++){ f[i] = Q.at(col, i); }
+    return f;
+}
+
+// f -= scale * g (in place)
+static inline void subfvecs(fvec& f, const fvec& g, float scale){
+    for(size_t i = 0; i < f.size(); i++){ f[i] -= scale * g[i]; }
+}
+
 struct Arnoldi_matrices{
     matrix Q, H;
-    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M,sqrt(A.size)), H(M,M) {
-        int N = sqrt(A.size);
-        fvec q = randvector(N);
-        fvec v;
-        for(int j = 0; j < M; j++){
-            v = TDmat_vec_mul(A,q);
-            for(int i = 0; i < j; i++){
-                H.at(j,i) = dot(q,v);
-                scale_fvec(H.at(j,i),q);
-                v = v - H.at(j,i)
+    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M, static_cast<int>(std::sqrt(static_cast<double>(A.size)))), H(M, M) {
+        const int N = static_cast<int>(std::sqrt(static_cast<double>(A.size)));
+        if (M > N) { std::cerr << "Arnoldi: M must be <= N\n"; std::abort(); }
+        fvec q0 = randvector(N);
+        append_mtx(Q, q0, 0);
+        for (int j = 0; j < M; j++) {
+            fvec v = TDmat_vec_mul(A, getcol(Q, j));
+            for (int i = 0; i <= j; i++) {
+                fvec qi = getcol(Q, i);
+                H.at(i, j) = dot(qi, v);
+                subfvecs(v, qi, H.at(i, j));
             }
+            if (j + 1 >= M) break;
+            float beta = normvec(v);
+            if (beta < 1e-15f) break;
+            H.at(j + 1, j) = beta;
+            append_mtx(Q, v, j + 1);
+        }
+    }
+};
 
+// Lanczos for symmetric tridiagonal A: produces orthonormal Q and symmetric tridiagonal T.
+// T is stored as diagonal alpha and subdiagonal beta (beta[j] below alpha[j]).
+struct Lanczos_result{
+    matrix Q;       // N x M, columns are Lanczos vectors
+    fvec alpha;     // diagonal of T, length M
+    fvec beta;      // subdiagonal of T, length M-1 (beta[j] = T(j+1,j))
+    Lanczos_result(int M, tri_diag_matrix& A) : Q(M, static_cast<int>(std::sqrt(static_cast<double>(A.size)))), alpha(M), beta((M > 0 ? M - 1 : 0), 0.0f) {
+        const int N = static_cast<int>(std::sqrt(static_cast<double>(A.size)));
+        if (M > N) { std::cerr << "Lanczos: M must be <= N\n"; std::abort(); }
+        if (M <= 0) return;
+        fvec q0 = randvector(N);
+        append_mtx(Q, q0, 0);
+        float beta_prev = 0.0f;
+        fvec q_prev(N, 0.0f);
+        for (int j = 0; j < M; j++) {
+            fvec qj = getcol(Q, j);
+            fvec u = TDmat_vec_mul(A, qj);
+            alpha[j] = dot(qj, u);
+            subfvecs(u, qj, alpha[j]);
+            if (j > 0) subfvecs(u, q_prev, beta_prev);
+            beta_prev = normvec(u);
+            if (j < M - 1) beta[j] = beta_prev;
+            if (j + 1 >= M) break;
+            if (beta_prev < 1e-15f) break;
+            append_mtx(Q, u, j + 1);
+            q_prev = u;
         }
     }
 };

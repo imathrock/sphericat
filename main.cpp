@@ -3,42 +3,52 @@
 #include <ctime>
 #include "clankerfuncs.h"
 
-float potential(float x){
-    return x*x;
+float potential(float x) {
+    return x * x;
 }
+
 using namespace std;
-// Testing simple matricies
-int main(){
-    int N = 100;
-    // int M = 5;
-    
-    tri_diag_matrix A = generate_hamiltonian(N, 5.0f, 2.5f, potential);
-    
-    cout << "=== Original Tridiagonal Matrix A ===\n";
-    // print_T_matrix(A);
+
+int main() {
+    // Small test: easy to inspect
+    const int N_small = 8;
+    const int M_small = 5;
+
+    tri_diag_matrix A_small = generate_hamiltonian(N_small, 5.0f, 2.5f, potential);
+
+    cout << "========== Arnoldi solver tests ==========\n\n";
+    cout << "--- Small system N=" << N_small << ", M=" << M_small << " ---\n";
+    cout << "Tridiagonal A (first 8x8):\n";
+    print_T_matrix(A_small);
     cout << "\n";
-    
-    cout << "=== random vector ===\n";
-    fvec v = randvector(N);
-    for(int i = 0; i< N; i++){
-        cout<< v[i] <<"\n";
-    }
-    cout << "=== Post transformation vector ===\n";
-    fvec w = TDmat_vec_mul(A,v);
-    for(int i = 0; i< N; i++){
-        cout<< w[i] <<"\n";
-    }
 
-    
+    Arnoldi_matrices arnoldi(M_small, A_small);
+    print_Arnoldi(arnoldi);
+    test_Arnoldi_orthogonality(arnoldi);
+    test_Arnoldi_relation(A_small, arnoldi);
 
-    // cout << "=== Running Arnoldi Iteration (M=" << M << ") ===\n";
-    // Arnoldi_matrices arnoldi(M, A);
-    
-    // cout << "\n=== Arnoldi Q Matrix (Orthonormal basis) ===\n";
-    // print_matrix(arnoldi.Q);
-    
-    // cout << "\n=== Arnoldi H Matrix (Upper Hessenberg) ===\n";
-    // print_matrix(arnoldi.H);
-    
-    // cout << "done\n";
+    cout << "\n========== Lanczos solver tests ==========\n\n";
+    cout << "--- Small system N=" << N_small << ", M=" << M_small << " ---\n";
+
+    Lanczos_result lanczos(M_small, A_small);
+    print_Lanczos(lanczos);
+    test_Lanczos_orthogonality(lanczos);
+    test_Lanczos_relation(A_small, lanczos);
+
+    // Larger run (no full print)
+    const int N_big = 50;
+    const int M_big = 12;
+    tri_diag_matrix A_big = generate_hamiltonian(N_big, 5.0f, 2.5f, potential);
+
+    cout << "\n--- Larger system N=" << N_big << ", M=" << M_big << " (numerical checks only) ---\n";
+    Arnoldi_matrices arnoldi_big(M_big, A_big);
+    test_Arnoldi_orthogonality(arnoldi_big);
+    test_Arnoldi_relation(A_big, arnoldi_big);
+
+    Lanczos_result lanczos_big(M_big, A_big);
+    test_Lanczos_orthogonality(lanczos_big);
+    test_Lanczos_relation(A_big, lanczos_big);
+
+    cout << "\nAll tests completed.\n";
+    return 0;
 }
