@@ -1,7 +1,6 @@
 #include "matrix\matrix.hpp"
 #include <cstdlib>
 #include <ctime>
-#include "clankerfuncs.h"
 
 float potential(float x) {
     return x * x;
@@ -10,44 +9,32 @@ float potential(float x) {
 using namespace std;
 
 int main() {
-    // Small test: easy to inspect
-    const int N_small = 8;
-    const int M_small = 5;
-
-    tri_diag_matrix A_small = generate_hamiltonian(N_small, 5.0f, 2.5f, potential);
-
-    cout << "========== Arnoldi solver tests ==========\n\n";
-    cout << "--- Small system N=" << N_small << ", M=" << M_small << " ---\n";
-    cout << "Tridiagonal A (first 8x8):\n";
-    print_T_matrix(A_small);
-    cout << "\n";
-
-    Arnoldi_matrices arnoldi(M_small, A_small);
-    print_Arnoldi(arnoldi);
-    test_Arnoldi_orthogonality(arnoldi);
-    test_Arnoldi_relation(A_small, arnoldi);
-
-    cout << "\n========== Lanczos solver tests ==========\n\n";
-    cout << "--- Small system N=" << N_small << ", M=" << M_small << " ---\n";
-
-    Lanczos_result lanczos(M_small, A_small);
-    print_Lanczos(lanczos);
-    test_Lanczos_orthogonality(lanczos);
-    test_Lanczos_relation(A_small, lanczos);
-
-    // Larger run (no full print)
-    const int N_big = 50;
-    const int M_big = 12;
-    tri_diag_matrix A_big = generate_hamiltonian(N_big, 5.0f, 2.5f, potential);
-
-    cout << "\n--- Larger system N=" << N_big << ", M=" << M_big << " (numerical checks only) ---\n";
-    Arnoldi_matrices arnoldi_big(M_big, A_big);
-    test_Arnoldi_orthogonality(arnoldi_big);
-    test_Arnoldi_relation(A_big, arnoldi_big);
-
-    Lanczos_result lanczos_big(M_big, A_big);
-    test_Lanczos_orthogonality(lanczos_big);
-    test_Lanczos_relation(A_big, lanczos_big);
+    // QR decompose test
+    cout << "\n========== QR decompose test ==========\n\n";
+    const int n = 4;
+    matrix A(n, n);
+    A.at(0,0)=1; A.at(0,1)=2; A.at(0,2)=3; A.at(0,3)=4;
+    A.at(1,0)=2; A.at(1,1)=1; A.at(1,2)=0; A.at(1,3)=1;
+    A.at(2,0)=0; A.at(2,1)=2; A.at(2,2)=1; A.at(2,3)=0;
+    A.at(3,0)=1; A.at(3,1)=0; A.at(3,2)=2; A.at(3,3)=1;
+    QR_thin qr(A);
+    QR_decompose(qr, A);
+    // Check Q^T Q ≈ I
+    float max_qtq_err = 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) {
+            float d = dot(qr.Q, qr.Q, i, j);
+            float want = (i == j ? 1.0f : 0.0f);
+            max_qtq_err = max(max_qtq_err, std::abs(d - want));
+        }
+    cout << "[QR] max |Q^T Q - I| = " << max_qtq_err << "\n";
+    // Check A ≈ Q*R
+    matrix QR = mul(qr.Q, qr.R);
+    float max_res_err = 0;
+    for (int c = 0; c < n; c++)
+        for (int r = 0; r < n; r++)
+            max_res_err = max(max_res_err, std::abs(A.at(c,r) - QR.at(c,r)));
+    cout << "[QR] max |A - Q*R| = " << max_res_err << "\n";
 
     cout << "\nAll tests completed.\n";
     return 0;
