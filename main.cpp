@@ -12,7 +12,8 @@ using namespace std;
 
 void print_eigen(eigen& A){
     cout << "=========Eigenvalues==========\n";
-    for(int i = 0; i < A.eigenvalues.size(); i++){ cout << A.eigenvalues[i] << "\n"; }
+    int size = A.eigenvalues.size();
+    for(int i = 0; i < size; i++){ cout << A.eigenvalues[i] << "\n"; }
 }
 
 void print_matrix(const matrix& A) {
@@ -28,12 +29,12 @@ void print_matrix(const matrix& A) {
 }
 
 int main(){
-    int N = 5;
+    int N = 500;
     matrix A(N,N);
 
-    for(int i = 0; i< N; i++){ A.at(i,i) = i; }
-    eigen eigen = QR_algorithm(A);
-    print_eigen(eigen);
+    // for(int i = 0; i< N; i++){ A.at(i,i) = i; }
+    // eigen eigen = QR_algorithm(A);
+    // print_eigen(eigen);
     
     for(int i = 0; i < N; i++) {
         for(int j = 0; j < N; j++) {
@@ -42,33 +43,33 @@ int main(){
             else A.at(i, j) = 0.0f;
         }
     }
-    eigen = QR_algorithm(A);
-    print_eigen(eigen);
+    // eigen = QR_algorithm(A);
+    // print_eigen(eigen);
     
-    // All 1s Matrix (Outer product of vector of 1s)
-    // Size N = 5
-    for(int i = 0; i < N; i++) {
-        for(int j = 0; j < N; j++) {
-            A.at(i, j) = 1.0f; 
-        }
-    }
-    eigen = QR_algorithm(A);
-    print_eigen(eigen);
+    // // All 1s Matrix (Outer product of vector of 1s)
+    // // Size N = 5
+    // for(int i = 0; i < N; i++) {
+    //     for(int j = 0; j < N; j++) {
+    //         A.at(i, j) = 1.0f; 
+    //     }
+    // }
+    // eigen = QR_algorithm(A);
+    // print_eigen(eigen);
     
     // Size N = 5
-    for(int i = 0; i < N; i++) {
-        for(int j = 0; j < N; j++) {
-            if (i == j) {
-                A.at(i, j) = (float)(i + 1); // Diagonal: 1, 2, 3, 4, 5
-            } else if (j > i) {
-                A.at(i, j) = 1.0f; // Fill upper triangle with dummy 1s
-            } else {
-                A.at(i, j) = 0.0f; // strictly lower triangular is 0
-            }
-        }
-    }
+    // for(int i = 0; i < N; i++) {
+    //     for(int j = 0; j < N; j++) {
+    //         if (i == j) {
+    //             A.at(i, j) = (float)(i + 1); // Diagonal: 1, 2, 3, 4, 5
+    //         } else if (j > i) {
+    //             A.at(i, j) = 1.0f; // Fill upper triangle with dummy 1s
+    //         } else {
+    //             A.at(i, j) = 0.0f; // strictly lower triangular is 0
+    //         }
+    //     }
+    // }
 
-    eigen = QR_algorithm(A);
+    eigen eigen = QR_algorithm(A);
     print_eigen(eigen);
 
 

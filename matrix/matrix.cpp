@@ -78,7 +78,9 @@ matrix mul(matrix& A,matrix& B){
 }
 
 fvec mul(matrix& A,fvec& B){
-    if(A.cols != B.size()){
+    int cols = A.cols;
+    int size = B.size();
+    if(cols != size){
         std::cout << "A.cols != B.size, Function: mul(A,B)\n\n";
         std::abort();
     }
@@ -309,7 +311,7 @@ eigen QR_algorithm(matrix&A){
     QR_householder(qr,A);
     matrix X(A.cols,A.rows);
     std::copy(A.data.begin(),A.data.end(),X.data.begin());
-    int iter = 500;
+    int iter = 1000;
     while(iter--){
         X = mul(qr.R, qr.Q);
         QR_householder(qr,X);
