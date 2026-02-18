@@ -83,50 +83,25 @@ bool allclose(matrix& A, matrix& B);
 
 tridiag generate_hamiltonian(int size, float L, float offset, float (*potential)(float));
 
-// -----------------------------------------------------------------------------
-// Yet to implement
-// -----------------------------------------------------------------------------
-// 1D TISE Hamiltonian (finite difference)
+matrix Transpose(matrix& A);
 
-// QR decomposition and eigensolver
 struct QR_thin {
     matrix Q, R;
-    QR_thin(matrix& A) : Q(A.cols, A.rows) , R(A.cols, A.cols){
-        std::copy(A.data.begin(),A.data.end(), Q.data.begin());
-        for(int i = 0; i < A.cols; i++){
-            for(int j = 0; j < i; j++){
-                float dotval = dot(Q, Q, j, i);
-                R.at(j,i) = dotval;
-                sub(Q,i,j,dotval);
-            }
-            float normval = norm(Q, i);
-            R.at(i,i) = normval;
-        }
-    }
+    QR_thin(matrix& A) : Q(A.rows, A.cols), R(A.cols, A.cols) {}
 };
 
-void QR_decompose(QR_thin& QR, matrix& A);
+void QR_MGS(QR_thin& QR, matrix& A);
 
-QR_thin QR_algorithm(matrix& A);
+void QR_householder(QR_thin& QR, matrix& A);
 
 struct eigen {
     fvec eigenvalues;
-    std::vector<fvec> eigenvectors;
-    eigen(matrix& A){
-        QR_thin qr = QR_algorithm(A);
-        matrix QT = Transpose(qr.Q);
-        eigenvalues.resize(A.cols);
-        eigenvectors.resize(A.cols, fvec(A.cols));
-        matrix B = mul(A,QT);
-        B = mul(qr.Q,B);
-        for(int i = 0; i < B.cols; i++){ eigenvalues[i] = B.at(i,i); }
-        for(int i = 0; i < qr.Q.cols; i++){
-            for(int j = 0; j < qr.Q.rows; j++){
-                eigenvectors[i][j] = qr.Q.at(i,j);
-            }
-        }
-    }
+    matrix eigenvectors;
+    eigen(matrix& A) : eigenvalues(A.cols), eigenvectors(A.cols,A.rows) {}
 };
+
+eigen QR_algorithm(matrix& A);
+
 
 // Vector / matrix helpers
 void scale_fvec(float f, fvec& v);

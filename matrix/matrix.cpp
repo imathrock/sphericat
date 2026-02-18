@@ -182,12 +182,15 @@ float norm(fvec& v, bool normalize){
     return sqsum;
 }
 
-float norm(matrix&a, int i){
-    float res = 0.0f;
-    for(int k = 0; k < a.rows; k++){ res += a.at(i,k)*a.at(i,k); }
-    res = sqrt(res);
-    float div = 1/res;
-    for(int k = 0; k < a.rows; k++){ a.at(i,k) *= div; }
+float norm(matrix& a, int i) {
+    float sum = 0.0f;
+    for (int k = 0; k < a.rows; k++) { sum += a.at(i, k) * a.at(i, k); }
+    float res = std::sqrt(sum);
+    // Only scale if the vector has non-negligible length
+    if (res > 1e-9f) {
+        float inv = 1.0f / res;
+        for (int k = 0; k < a.rows; k++) { a.at(i, k) *= inv; }
+    }
     return res;
 }
 
@@ -231,7 +234,16 @@ tridiag generate_hamiltonian(int size, float L, float offset, float (*potential)
     return H;
 }
 
-void QR_decompose(QR_thin& QR, matrix& A){
+bool is_upper_triangular(matrix& M, float tol) {
+    for (int i = 0; i < M.cols; i++) {
+        for (int j = i + 1; j < M.rows; j++) { // Check below diagonal
+             if (std::abs(M.at(j, i)) > tol) return false;
+        }
+    }
+    return true;
+}
+
+void QR_MGS(QR_thin& QR, matrix& A){
     std::copy(A.data.begin(),A.data.end(), QR.Q.data.begin());
     for(int i = 0; i < A.cols; i++){
         for(int j = 0; j < i; j++){
@@ -239,21 +251,38 @@ void QR_decompose(QR_thin& QR, matrix& A){
             QR.R.at(j,i) = dotval;
             sub(QR.Q,i,j,dotval);
         }
-        QR.R.at(i,i) = norm(QR.Q, i);
+        QR.R.at(i,i) = norm(QR.Q, i); // Normalizes the column too.
     }
 }
 
-QR_thin QR_algorithm(matrix&A){
-    QR_thin qr(A);
-    matrix Q_(qr.Q.cols,qr.Q.rows);
-    matrix B(A.cols, A.rows);
-    int iter = 2000;
-    while(iter--){
-        Q_ = qr.Q;
-        B = mul(qr.Q,A);
-        QR_decompose(qr,B);
-        if(allclose(Q_,qr.Q)){break;}
+void QR_householder(QR_thin&QR, matrix&A){
+    std::copy(A.data.begin(), A.data.end(), QR.R.data.begin());
+    std::fill(QR.Q.data.begin(), QR.Q.data.end(), 0.0f);
+    for(int i = 0; i < QR.Q.cols; i++) QR.Q.at(i,i) = 1.0f;
+    int m = A.rows;
+    int n = A.cols;
+    for(int i = 0; i < n-1; i++){
+
     }
-    return qr;
+
 }
+
+eigen QR_algorithm(matrix&A){
+    eigen eigen(A);
+    QR_thin qr(A);
+    QR_householder(qr,A);
+    matrix X(A.cols,A.rows);
+    std::copy(A.data.begin(),A.data.end(),X.data.begin());
+    int iter = 500;
+    while(iter--){
+        X = mul(qr.R, qr.Q);
+        QR_householder(qr,X);
+        eigen.eigenvectors = mul(eigen.eigenvectors,qr.Q);
+        // std::cout << iter <<"\n";
+        if(is_upper_triangular(X,0.00001)){break;}
+    }
+    for(int i = 0; i < X.cols; i++){ eigen.eigenvalues[i] = X.at(i,i); }
+    return eigen;
+}
+
 
