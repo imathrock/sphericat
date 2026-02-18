@@ -255,16 +255,52 @@ void QR_MGS(QR_thin& QR, matrix& A){
     }
 }
 
-void QR_householder(QR_thin&QR, matrix&A){
+void QR_householder(QR_thin& QR, matrix& A) {
+
     std::copy(A.data.begin(), A.data.end(), QR.R.data.begin());
+
     std::fill(QR.Q.data.begin(), QR.Q.data.end(), 0.0f);
-    for(int i = 0; i < QR.Q.cols; i++) QR.Q.at(i,i) = 1.0f;
+    for (int i = 0; i < QR.Q.cols; i++) QR.Q.at(i, i) = 1.0f;
+
     int m = A.rows;
     int n = A.cols;
-    for(int i = 0; i < n-1; i++){
 
+    for (int k = 0; k < n && k < m - 1; k++) {
+        fvec x(m - k); 
+        for (int i = k; i < m; i++) { x[i - k] = QR.R.at(k, i); }
+
+        float xnorm = norm(x, false); 
+        if (xnorm < 1e-9f) continue; 
+
+        fvec v = x;
+        v[0] += (x[0] >= 0 ? xnorm : -xnorm);
+
+        float vnorm = norm(v, true);
+        if (vnorm < 1e-9f) continue;
+
+        for (int j = k; j < n; j++) {
+            float dot = 0.0f;
+
+            for (int i = k; i < m; i++) { dot += v[i - k] * QR.R.at(j, i); }
+            
+            for (int i = k; i < m; i++) { QR.R.at(j, i) -= 2.0f * dot * v[i - k]; }
+        }
+
+        fvec w(m, 0.0f);
+        for (int j = k; j < m; j++) {     
+            float vj = v[j - k];          
+            for (int i = 0; i < m; i++) { 
+                w[i] += QR.Q.at(j, i) * vj; 
+            }
+        }
+
+        for (int j = k; j < m; j++) {
+            float vj = v[j - k];
+            for (int i = 0; i < m; i++) {
+                QR.Q.at(j, i) -= 2.0f * w[i] * vj;
+            }
+        }
     }
-
 }
 
 eigen QR_algorithm(matrix&A){
