@@ -102,17 +102,15 @@ struct eigen {
 
 eigen QR_algorithm(matrix& A);
 
-
 // Vector / matrix helpers
 void scale_fvec(float f, fvec& v);
 void append_mtx(matrix& Q, fvec f, int col);
 fvec getcol(matrix& Q, int col);
-void subfvecs(fvec& f, const fvec& g, float scale);
 
 // Krylov solvers
 struct Arnoldi_matrices {
     matrix Q, H;
-    Arnoldi_matrices(int M, tridiag& A);
+    Arnoldi_matrices(int M, tridiag& A) : Q(M,A.rows) , H(M,M) {}
 };
 struct Lanczos_result {
     matrix Q;
