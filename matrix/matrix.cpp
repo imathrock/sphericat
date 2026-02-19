@@ -1,7 +1,6 @@
 #include "matrix.hpp"
 #include "immintrin.h"
 
-
 matrix add(matrix& A,matrix& B){
     if(A.cols != B.cols || A.rows != B.rows){
         std::cout << "Matrices dimensions do not match, Function: add\n\n";
@@ -130,8 +129,6 @@ float dot(fvec&A, fvec&B){
     }
     return res;
 }
-
-
 
 float norm(matrix& M){
     __m256 sqsum = _mm256_setzero_ps();
@@ -323,4 +320,59 @@ eigen QR_algorithm(matrix&A){
     return eigen;
 }
 
+/*
+struct Arnoldi_matrices{
+    matrix Q, H;
+    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M, static_cast<int>(std::sqrt(static_cast<double>(A.size)))), H(M, M) {
+        const int N = static_cast<int>(std::sqrt(static_cast<double>(A.size)));
+        if (M > N) { std::cerr << "Arnoldi: M must be <= N\n"; std::abort(); }
+        fvec q0 = randvector(N);
+        append_mtx(Q, q0, 0);
+        for (int j = 0; j < M; j++) {
+            fvec v = TDmat_vec_mul(A, getcol(Q, j));
+            for (int i = 0; i <= j; i++) {
+                fvec qi = getcol(Q, i);
+                H.at(i, j) = dot(qi, v);
+                subfvecs(v, qi, H.at(i, j));
+            }
+            if (j + 1 >= M) break;
+            float beta = normvec(v);
+            if (beta < 1e-15f) break;
+            H.at(j + 1, j) = beta;
+            append_mtx(Q, v, j + 1);
+        }
+    }
+};
+*/
+inline void scalefvec(float f, fvec& v){ for(int i = 0; i < v.size(); i++){v[i] *= f;} }
 
+inline void append_mtx(matrix& Q, fvec v, int col){ for(int i = 0; i < v.size(); i++){ Q.at(col,i) = v[i]; } }
+
+fvec getcol(matrix&M, int j){
+    fvec v(M.rows);
+    for(int i = 0; i < M.rows; i++){ v[i] = M.at(j,i); }
+    return v;
+}
+
+arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar){
+    if(M >= 50){std::cout << "Too many eigenvalues to find, unfeasible\n"; std::abort();}
+    fvec q0 = randvector(A.rows);
+    fvec qj(A.rows);
+    append_mtx(ar.Q,q0,0);
+    fvec qi(A.rows);
+    for(int i = 0; i < M; i++){
+        qi = getcol(ar.Q,i);
+        fvec v = mul(A,qi);
+        for(int j = 0; j <= i; j++){
+            qj = getcol(ar.Q,j);
+            ar.H.at(j,i) = dot(qj,v);
+            scalefvec(ar.H.at(j,i),qj);
+            v = sub(v,qj);
+        }
+        if(i+1 >= M) {break;}
+        float normval = norm(v,true);
+        ar.H.at(i+1,i) = normval;
+        append_mtx(ar.Q,v,i+1);
+    }
+    return ar;
+}
