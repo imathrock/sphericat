@@ -45,12 +45,12 @@ int main(){
     // Test 1: 500x500 diagonal matrix, find 5 largest eigenvalues
     cout << "Test 1: 500x500 Diagonal Matrix (M=5)\n";
     cout << "Finding 5 largest eigenvalues\n";
-    tridiag T1(500);
-    for(int i = 0; i < 500; i++) T1.diag[i] = (float)(i + 1);
-    arnoldi ar1(5, T1);
-    ar1 = Arnoldi(5, T1, ar1);
+    tridiag T1(1000);
+    for(int i = 0; i < 1000; i++) T1.diag[i] = (float)(i + 1);
+    arnoldi ar1(100, T1);
+    ar1 = Arnoldi(100, T1, ar1);
     eigen e1 = QR_algorithm(ar1.H);
-    fvec expected1 = {500.0f, 499.0f, 498.0f, 497.0f, 496.0f};
+    fvec expected1 = {1000.0f, 999.0f, 998.0f, 997.0f, 996.0f};
     compare_eigenvalues(expected1, e1.eigenvalues, 5);
     
     // Test 2: 300x300 tridiagonal, M=6
@@ -59,8 +59,8 @@ int main(){
     tridiag T2(300);
     for(int i = 0; i < 300; i++) T2.diag[i] = 2.0f;
     for(int i = 0; i < 299; i++) { T2.subdiag[i] = -1.0f; T2.supdiag[i] = -1.0f; }
-    arnoldi ar2(6, T2);
-    ar2 = Arnoldi(6, T2, ar2);
+    arnoldi ar2(100, T2);
+    ar2 = Arnoldi(100, T2, ar2);
     eigen e2 = QR_algorithm(ar2.H);
     // Expected: 2 - 2*cos(k*pi/(N+1)) for k=N, N-1, N-2... (largest)
     fvec expected2(6);
@@ -91,8 +91,8 @@ int main(){
     tridiag T4(500);
     for(int i = 0; i < 500; i++) T4.diag[i] = -2.0f;
     for(int i = 0; i < 499; i++) { T4.subdiag[i] = 1.0f; T4.supdiag[i] = 1.0f; }
-    arnoldi ar4(9, T4);
-    ar4 = Arnoldi(9, T4, ar4);
+    arnoldi ar4(49, T4);
+    ar4 = Arnoldi(49, T4, ar4);
     eigen e4 = QR_algorithm(ar4.H);
     // Expected: -2 + 2*cos(k*pi/(N+1)) for k=1,2,3... (largest first)
     fvec expected4(9);

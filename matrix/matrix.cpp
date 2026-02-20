@@ -320,30 +320,6 @@ eigen QR_algorithm(matrix&A){
     return eigen;
 }
 
-/*
-struct Arnoldi_matrices{
-    matrix Q, H;
-    Arnoldi_matrices(int M, tri_diag_matrix& A) : Q(M, static_cast<int>(std::sqrt(static_cast<double>(A.size)))), H(M, M) {
-        const int N = static_cast<int>(std::sqrt(static_cast<double>(A.size)));
-        if (M > N) { std::cerr << "Arnoldi: M must be <= N\n"; std::abort(); }
-        fvec q0 = randvector(N);
-        append_mtx(Q, q0, 0);
-        for (int j = 0; j < M; j++) {
-            fvec v = TDmat_vec_mul(A, getcol(Q, j));
-            for (int i = 0; i <= j; i++) {
-                fvec qi = getcol(Q, i);
-                H.at(i, j) = dot(qi, v);
-                subfvecs(v, qi, H.at(i, j));
-            }
-            if (j + 1 >= M) break;
-            float beta = normvec(v);
-            if (beta < 1e-15f) break;
-            H.at(j + 1, j) = beta;
-            append_mtx(Q, v, j + 1);
-        }
-    }
-};
-*/
 inline void scalefvec(float f, fvec& v){ for(int i = 0; i < v.size(); i++){v[i] *= f;} }
 
 inline void append_mtx(matrix& Q, fvec v, int col){ for(int i = 0; i < v.size(); i++){ Q.at(col,i) = v[i]; } }
@@ -355,7 +331,7 @@ fvec getcol(matrix&M, int j){
 }
 
 arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar){
-    if(M >= 50){std::cout << "Too many eigenvalues to find, unfeasible\n"; std::abort();}
+    // if(M >= 50){std::cout << "Too many eigenvalues to find, unfeasible\n"; std::abort();}
     fvec q0 = randvector(A.rows);
     fvec qj(A.rows);
     append_mtx(ar.Q,q0,0);
@@ -376,3 +352,4 @@ arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar){
     }
     return ar;
 }
+
