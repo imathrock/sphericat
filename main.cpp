@@ -39,7 +39,38 @@ void compare_eigenvalues(const fvec& expected, const fvec& calculated, int M) {
     }
 }
 
+void test_ar_eig() {
+    cout << "=== ar_eig Tests ===\n\n";
+    
+    // Test 1: 10x10 diagonal matrix
+    cout << "Test 1: 10x10 Diagonal (M=5)\n";
+    tridiag T1(10);
+    for(int i = 0; i < 10; i++) T1.diag[i] = (float)(i + 1);
+    eigen e1 = ar_eig(T1, 9);
+    cout << "Expected largest 5: 10, 9, 8, 7, 6\n";
+    cout << "Calculated: ";
+    for(int i = 0; i < 5; i++) cout << e1.eigenvalues[i] << " ";
+    cout << "\n\n";
+    
+    // Test 2: 20x20 tridiagonal
+    cout << "Test 2: 20x20 Tridiagonal (M=4)\n";
+    cout << "Diagonal: 3, Off-diagonal: -1\n";
+    tridiag T2(20);
+    for(int i = 0; i < 20; i++) T2.diag[i] = 3.0f;
+    for(int i = 0; i < 19; i++) { T2.subdiag[i] = -1.0f; T2.supdiag[i] = -1.0f; }
+    eigen e2 = ar_eig(T2, 15);
+    cout << "Expected largest 4: ";
+    for(int k = 20; k > 16; k--) {
+        cout << (3.0f - 2.0f * cos(k * M_PI / 21.0f)) << " ";
+    }
+    cout << "\nCalculated: ";
+    for(int i = 0; i < 4; i++) cout << e2.eigenvalues[i] << " ";
+    cout << "\n\n";
+}
+
 int main(){
+    test_ar_eig();
+    
     cout << "=== Arnoldi Tests (M < 10) ===\n\n";
     
     // Test 1: 500x500 diagonal matrix, find 5 largest eigenvalues

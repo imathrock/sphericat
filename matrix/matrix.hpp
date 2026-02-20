@@ -111,6 +111,8 @@ struct arnoldi {
 
 arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar);
 
+eigen ar_eig(tridiag&A,int M);
+
 struct Lanczos_result {
     matrix Q;
     fvec alpha, beta;

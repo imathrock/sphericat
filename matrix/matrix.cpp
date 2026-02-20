@@ -331,7 +331,6 @@ fvec getcol(matrix&M, int j){
 }
 
 arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar){
-    // if(M >= 50){std::cout << "Too many eigenvalues to find, unfeasible\n"; std::abort();}
     fvec q0 = randvector(A.rows);
     fvec qj(A.rows);
     append_mtx(ar.Q,q0,0);
@@ -353,3 +352,13 @@ arnoldi Arnoldi(int M, tridiag& A, arnoldi& ar){
     return ar;
 }
 
+eigen ar_eig(tridiag&A,int M){
+    arnoldi arnold(M,A);
+    arnold = Arnoldi(M,A,arnold);
+    eigen E = QR_algorithm(arnold.H);
+    matrix eigenvectors = mul(arnold.Q,E.eigenvectors);
+    eigen Eigen(eigenvectors);
+    Eigen.eigenvectors = eigenvectors;
+    Eigen.eigenvalues = E.eigenvalues;
+    return Eigen;
+}
